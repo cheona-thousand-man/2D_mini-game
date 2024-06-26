@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "2D mini game.sln"
+    "dotnet.defaultSolution": "2D_mini-game.sln"
 }

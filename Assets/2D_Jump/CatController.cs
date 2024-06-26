@@ -1,7 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CatController : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class CatController : MonoBehaviour
     float jumpForce = 680.0f;
     float walkForce = 15.0f;
     float maxWalkSpeed = 2.0f;
+    bool isJumping = false;
 
     // Start is called before the first frame update
     void Start()
@@ -22,10 +24,13 @@ public class CatController : MonoBehaviour
     void Update()
     {
         // 점프
-        if(Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
         {
             this.rigid2D.AddForce(transform.up * this.jumpForce);
-        }   
+            animator.SetBool("IsJump", true);
+            isJumping = true;
+            Debug.Log($"Jump started");
+        }
 
         // 좌우 이동
         int key = 0;
@@ -35,21 +40,56 @@ public class CatController : MonoBehaviour
         // 플레이어 속도
         float speedx = Mathf.Abs(this.rigid2D.velocity.x);
 
-        // 스피드 제한
+        // 스피드 제한하여 이동
         if (speedx < this.maxWalkSpeed)
             this.rigid2D.AddForce(transform.right * key * this.walkForce);
 
         // 움직이는 방향에 따라 반전
         if (key != 0)
+        {
             transform.localScale = new Vector3(key, 1, 1);
+        }
 
-        // 플레이어 속도에 맞춰 에미메이션 속도 변경
-        this.animator.speed = speedx / 2.0f;
+        // 플레이어 속도에 맞춰 에니메이션 속도 변경
+        if (this.rigid2D.velocity.y > 0)
+        {
+            this.animator.speed = speedx / 2.0f;
+        }
+        else
+            this.animator.speed = 1.0f;
+
+        // 플레이어가 화면 밖으로 나가면 처음부터 다시 시작
+        if (transform.position.x < -2.5f || transform.position.x > 2.5f)
+        {
+            animator.SetBool("IsJump", false);
+            isJumping = false;
+            Debug.Log("화면을 벗어났습니다.");
+            SceneManager.LoadScene("JumpClearScene");
+        }
     }
 
-    // 애니메이션 이벤트 함수 예시
-    public void OnAnimationEvent()
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("애니메이션 이벤트 호출됨!");
+        if (other.name == "flag")
+        {
+            animator.SetBool("IsJump", false);
+            isJumping = false;
+            Debug.Log("게임 종료");
+            SceneManager.LoadScene("JumpClearScene");
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        Collider2D myCollider = GetComponent<CircleCollider2D>();
+        if (isJumping && other.gameObject.CompareTag("cloud") && myCollider != null)
+        {
+            if (this.rigid2D.velocity.y == 0)
+            {
+                isJumping = false;
+                animator.SetBool("IsJump", false);
+                Debug.Log($"Jump ended: {isJumping}");
+            }
+        }
     }
 }

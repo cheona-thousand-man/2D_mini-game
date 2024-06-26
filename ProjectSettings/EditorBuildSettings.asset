@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Roulette.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
+    path: Assets/JumpGame.unity
+    guid: c87727173588e6948a7d51e738ce6d55
+  - enabled: 1
+    path: Assets/JumpClearScene.unity
+    guid: 52294bee303207047901e485713c5862
   m_configObjects: {}
